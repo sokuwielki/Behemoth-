@@ -1,7 +1,33 @@
 import pygame
 
+try:
+    user_settings = open("settings.txt", "r")
+except FileNotFoundError:
+    user_settings = open("settings.txt", "a")
+    user_settings.write("default settings") #TODO
+
+#print("penis")
+#print(user_settings.readlines())
+
+
+
 pygame.font.init()
 font = pygame.font.Font(None, 36)
+
+class Game:
+    def __init__(self):
+        pass
+
+    #somewhere here put reading from the settings.txt
+
+    def start_new_game(self, user_name):
+        open(user_name + ".txt", "a")
+
+
+    def load_save(self, save_path): #Users gonna need to input their paths here, otherwise some permision shit might happen ¯\_(ツ)_/¯
+        save_file = open(save_path, "r")
+        print(save_file.readline())
+
 
 class Behemoth:
     def __init__(self, name, hp, atk, defense, stamina):
@@ -32,6 +58,7 @@ class Player:
         self.choice = 0
         self.state = "Main_Menu"
         self.progress = 0
+        self.menupos = [0, 0]
 
 
 

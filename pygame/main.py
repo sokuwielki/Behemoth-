@@ -9,28 +9,35 @@ screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 running = True
 
+def create_button(xpos,ypos, image_path, image_scale, color):
+    img = pygame.image.load(image_path)
+    img = pygame.transform.scale(img, (img.get_size()[0] * image_scale, img.get_size()[1] * image_scale))
+    but1 = Button(xpos,ypos, img)
+    but1.color = color
+    but1.buttonUpdate(screen)
+
+    return but1
+
+def create_game_menu():
+    but1 = create_button(300, 100, "pygame/assets/Sprite-0001.png", 2, (50,50,50))
+    but2 = create_button(900, 100, "pygame/assets/Sprite-0001.png", 2, (50,50,50))
+    but3 = create_button(300, 600, "pygame/assets/Sprite-0001.png", 2, (50,50,50))
+    but4 = create_button(900, 600, "pygame/assets/Sprite-0001.png", 2, (50,50,50))
+    return [[but1, but2,], [but3, but4]]
+
+def reload_game_menu(game_menu, screen, player):
+    for button_list in game_menu:
+        for button in button_list:
+            button.buttonUpdate(screen)
+            button.color = (gray)
+            button.buttonFocus(screen)
+    game_menu[player.menupos[0]][player.menupos[1]].color = (255, 0, 0)
+    game_menu[player.menupos[0]][player.menupos[1]].buttonFocus(screen)
 
 def create_main_menu():
-    img = pygame.image.load("assets/Sprite-0001.png")
-    img = pygame.transform.scale(img, (img.get_size()[0] * 2, img.get_size()[1] * 2))
-    but1 = Button(100,100, img)
-    but1.color = (50,50,50)
-    but1.buttonUpdate(screen)
-    
-
-    img = pygame.image.load("assets/Sprite-0001.png")
-    img = pygame.transform.scale(img, (img.get_size()[0] * 2, img.get_size()[1] * 2))
-    but2 = Button(100,300, img)
-    but2.color = (50,50,50)
-    but2.buttonUpdate(screen)
-
-
-    img = pygame.image.load("assets/Sprite-0001.png")
-    img = pygame.transform.scale(img, (img.get_size()[0] * 2, img.get_size()[1] * 2))
-    but3 = Button(100,500, img)
-    but3.color = (50,50,50)
-    but3.buttonUpdate(screen)
-
+    but1 = create_button(100, 100, "pygame/assets/Sprite-0001.png", 2, (50,50,50))
+    but2 = create_button(100, 300, "pygame/assets/Sprite-0001.png", 2, (50,50,50))
+    but3 = create_button(100, 500, "pygame/assets/Sprite-0001.png", 2, (50,50,50))
 
     main_menu = [but1, but2, but3]
 
@@ -56,6 +63,7 @@ def reload_main_menu(main_menu, screen, player):
     main_menu[player.choice].buttonFocus(screen)
     
     #return player.choice
+
 
 def play_cutscene(progress, screen):
 
@@ -88,8 +96,6 @@ screen.fill("purple")
 text_surface = behemoth_font.render("BEHEMOTH", True, (255,255,255))
 screen.blit(text_surface, (400, 200))
 
-
-
 reload_main_menu(main_menu, screen, player)
 
 states = {"Main_Menu":0, "Cutscene":1, "Main_Game":2, "Battle_Phase":3}
@@ -108,16 +114,6 @@ while running:
     match states[player.state]:
         # Main Menu Part
         case 0:
-            #reload_main_menu(main_menu, screen, player)
-            """while running:
-                # poll for events
-                # pygame.QUIT event means the user clicked X to close your window
-                for event2 in pygame.event.get():
-                    if event2.type == pygame.QUIT:
-                        running = False
-                    if event2.type == pygame.KEYDOWN:
-                        # Save the pressed key
-                        player.player_input = pygame.key.name(event2.key)"""
             if pygame.key.get_just_pressed()[pygame.K_w] or pygame.key.get_just_pressed()[pygame.K_s]:
                 reload_main_menu(main_menu, screen, player)
 
@@ -137,17 +133,31 @@ while running:
             screen.fill("purple")
             play_cutscene(player.progress, screen)
             player.state = "Main_Game"
+            #prolly need to add sleep(5) here or wait until user input
+            background = pygame.image.load(r"pygame/assets/Main_Menu_Background.jpg")
+            background = pygame.transform.scale(background, (1280, 720))
+            screen.blit(background, (0,0))
+            game_menu = create_game_menu()
 
         
         
         ###MAIN GAME
-        case 2: #main game loop, battle will be most likely outside of it, will take most code anyway
-            print("works")
-            #load_background -> should do stuff like, move the background, maybe with a nice sliding animation when we move
-            #actually, only the background needs to move, we don't have to move the player (maybe for a cutscene, but we gotta center it back then)
+        case 2:
+            if pygame.key.get_just_pressed()[pygame.K_a]:
+                player.menupos[1] -= 1
+                player.menupos[1] = player.menupos[1] % 2
+            if pygame.key.get_just_pressed()[pygame.K_d]:
+                player.menupos[1] += 1
+                player.menupos[1] = player.menupos[1] % 2
+            if pygame.key.get_just_pressed()[pygame.K_s]:
+                player.menupos[0] -= 1
+                player.menupos[0] = player.menupos[0] % 2
+            if pygame.key.get_just_pressed()[pygame.K_w]:
+                player.menupos[0] += 1
+                player.menupos[0] = player.menupos[0] % 2
+            reload_game_menu(game_menu, screen, player)
 
-            #saving where we're at on the map and npc states are gonna be hard
-
+            #focus to menupos
         
         
         case 3: #Battle Phase
